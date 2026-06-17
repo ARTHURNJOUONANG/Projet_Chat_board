@@ -122,5 +122,13 @@ export const api = {
   /** Compte rendu : campagnes + toutes les candidatures envoyées (pour la page rapport). */
   getCampaignsReport: () => apiRequest('/api/campaigns/report'),
   /** Dernière exécution sauvegardée + liens (affichés même après timeout ou sans clic sur Lancer). */
-  getLastRun: () => apiRequest('/api/campaigns/last-run')
+  getLastRun: () => apiRequest('/api/campaigns/last-run'),
+  getKandiContacts: () => apiRequest('/api/campaigns/kandi-contacts'),
+  addKandiContact: (body) => apiRequest('/api/campaigns/kandi-contacts', {
+    method: 'POST',
+    body: JSON.stringify(body)
+  }),
+  deleteKandiContact: (id) => apiRequest(`/api/campaigns/kandi-contacts/${id}`, {
+    method: 'DELETE'
+  })
 }

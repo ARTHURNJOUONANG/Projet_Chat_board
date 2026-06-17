@@ -76,17 +76,31 @@ export async function POST(request) {
       .upload(storagePath, file)
 
     if (uploadError) {
-      return NextResponse.json({ error: 'Erreur upload fichier' }, { status: 500 })
+      console.error('Candidates POST storage upload:', uploadError)
+      const hint =
+        uploadError.message?.includes('JWT') || uploadError.message?.includes('session')
+          ? 'Session ou permission stockage : reconnectez-vous ou vérifiez les droits du bucket « documents ».'
+          : uploadError.message || 'Erreur upload fichier'
+      return NextResponse.json({ error: hint }, { status: 500 })
     }
 
-    // Extraction du texte
+    // Extraction du texte (certains navigateurs envoient type vide ou application/octet-stream)
     const buffer = Buffer.from(await file.arrayBuffer())
     let extractedText = ''
-    
-    if (file.type === 'application/pdf') {
+    const lowerName = (file.name || '').toLowerCase()
+    const mime = file.type || ''
+    const isPdf =
+      mime === 'application/pdf' ||
+      mime === 'application/x-pdf' ||
+      lowerName.endsWith('.pdf')
+    const isDocx =
+      mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      lowerName.endsWith('.docx')
+
+    if (isPdf) {
       const pdfData = await pdfParse(buffer)
       extractedText = pdfData.text
-    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    } else if (isDocx) {
       const result = await mammoth.extractRawText({ buffer })
       extractedText = result.value
     } else {
@@ -113,7 +127,11 @@ export async function POST(request) {
       .single()
 
     if (docError) {
-      return NextResponse.json({ error: 'Erreur sauvegarde document' }, { status: 500 })
+      console.error('Candidates POST uploaded_documents insert:', docError)
+      return NextResponse.json(
+        { error: docError.message || 'Erreur sauvegarde document' },
+        { status: 500 }
+      )
     }
 
     // Créer le candidat
@@ -130,7 +148,27 @@ export async function POST(request) {
       .single()
 
     if (candidateError) {
-      return NextResponse.json({ error: 'Erreur création candidat' }, { status: 500 })
+      console.error('Candidates POST candidates insert:', candidateError)
+      const code = candidateError.code
+      const msg = candidateError.message || ''
+      const isDuplicateEmail =
+        code === '23505' ||
+        msg.includes('unique') ||
+        msg.includes('duplicate') ||
+        msg.includes('candidates_recruiter_id_email_key')
+      if (isDuplicateEmail) {
+        return NextResponse.json(
+          {
+            error:
+              'Un candidat avec cet email existe déjà pour votre compte. Modifiez l’email ou supprimez le doublon.',
+          },
+          { status: 409 }
+        )
+      }
+      return NextResponse.json(
+        { error: msg || 'Erreur création candidat' },
+        { status: 500 }
+      )
     }
 
     // Analyser le CV avec LLM

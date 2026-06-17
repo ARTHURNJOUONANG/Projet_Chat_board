@@ -18,8 +18,9 @@ export async function GET(request) {
     // Get application statistics
     const { data: applications, error: appsError } = await supabase
       .from('job_applications')
-      .select('application_status, applied_date, created_at')
+      .select('id, company_name, position_title, application_status, applied_date, created_at')
       .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
 
     if (appsError) {
       console.error('Error fetching applications:', appsError)

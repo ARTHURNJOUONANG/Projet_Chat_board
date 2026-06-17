@@ -6,3 +6,12 @@ out
 build
 database.db
 .puppeteer-cache
+
+# Capacitor / Android (atelier mobile)
+generated/
+android/
+*.iml
+.gradle/
+local.properties
+.idea/
+*.keystore

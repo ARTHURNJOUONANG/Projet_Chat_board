@@ -1,0 +1,679 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 4717
+>>
+stream
+0.200025 w
+0 G
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 791.8899999999999864 Td
+(# C2.2 — Qualité de développement) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 767.8899999999999864 Td
+(## 1. Principes appliqués) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 743.8899999999999864 Td
+(### SOLID \(exemples dans CareerAI\)) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 719.8899999999999864 Td
+(| Principe | Application |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 707.8899999999999864 Td
+(|----------|-------------|) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 695.8899999999999864 Td
+(| **S** — Single Responsibility | `CampaignService.js` : logique) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 683.8899999999999864 Td
+(campagnes uniquement ; routes API = HTTP + auth |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 671.8899999999999864 Td
+(| **O** — Open/Closed | Nouvelles sources d’offres ajoutées via) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 659.8899999999999864 Td
+(fonctions `fetchJobsFrom*` sans modifier le cœur du matching |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 647.8899999999999864 Td
+(| **L** — Liskov | Services interchangeables derrière interfaces stables) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 635.8899999999999864 Td
+(\(`runCampaignDay`\) |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 623.8899999999999864 Td
+(| **I** — Interface Segregation | API découpée par domaine) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 611.8899999999999864 Td
+(\(`/api/campaigns`, `/api/recruiter`\) |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 599.8899999999999864 Td
+(| **D** — Dependency Inversion | Routes reçoivent `supabase` client ;) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 587.8899999999999864 Td
+(services ne dépendent pas de React |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 563.8899999999999864 Td
+(### Design patterns) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 539.8899999999999864 Td
+(| Pattern | Usage |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 527.8899999999999864 Td
+(|---------|--------|) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 515.8899999999999864 Td
+(| **Service layer** | `backend/services/*.js` |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 503.8899999999999864 Td
+(| **Repository implicite** | Accès Supabase centralisé dans services |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 491.8899999999999864 Td
+(| **Context \(React\)** | `AuthContext`, `ToastContext`, `LanguageContext`) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 479.8899999999999864 Td
+(|) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 467.8899999999999864 Td
+(| **Route Handler** | Pattern Next.js App Router pour API REST |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 443.8899999999999864 Td
+(---) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 419.8899999999999864 Td
+(## 2. Conventions de code) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 395.8899999999999864 Td
+(### Frontend) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 371.8899999999999864 Td
+(- Composants interactifs : `'use client'` en tête de fichier.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 359.8899999999999864 Td
+(- Styles : Tailwind CSS, classes utilitaires cohérentes.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 347.8899999999999864 Td
+(- Appels API : passer par [frontend/lib/api.js]\(../frontend/lib/api.js\) avec) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 335.8899999999999864 Td
+(`credentials: 'include'`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 323.8899999999999864 Td
+(- Textes utilisateur :) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 311.8899999999999864 Td
+([frontend/lib/translations.js]\(../frontend/lib/translations.js\) \(FR/EN\).) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 287.8899999999999864 Td
+(### Backend / API) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 263.8899999999999864 Td
+(- Routes : `app/api/**/route.js`, exports `GET`, `POST`, `PATCH`,) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 251.8899999999999864 Td
+(`DELETE`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 239.8899999999999864 Td
+(- Session : `createRouteHandlerClient\({ cookies }\)`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 227.8899999999999864 Td
+(- Secrets : uniquement `process.env.*` côté serveur.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 215.8899999999999864 Td
+(- Réponses : `NextResponse.json\({ error: '...' }, { status }\)`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 191.8899999999999864 Td
+(### Base de données) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 167.8899999999999864 Td
+(- Migrations idempotentes dans `supabase-migrations/`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 155.8899999999999864 Td
+(- RLS activé sur toutes les tables métier.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 131.8899999999999864 Td
+(---) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 107.8899999999999864 Td
+(## 3. Gestion de version et revues) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 83.8899999999999864 Td
+(Voir [CONTRIBUTING.md]\(../CONTRIBUTING.md\) pour le process) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 71.8899999999999864 Td
+(complet.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 47.8899999999999864 Td
+(| Branche | Usage |) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 1463
+>>
+stream
+0.200025 w
+0 G
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 791.8899999999999864 Td
+(|---------|--------|) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 779.8899999999999864 Td
+(| `main` | Production stable \(`careerai.live`\) |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 767.8899999999999864 Td
+(| `develop` | Intégration continue |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 755.8899999999999864 Td
+(| `feature/*` | Nouvelles fonctionnalités |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 743.8899999999999864 Td
+(| `fix/*` | Corrections |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 719.8899999999999864 Td
+(Workflow CI : [.github/workflows/build-android.yml]\(../.github/workflows/b) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 707.8899999999999864 Td
+(uild-android.yml\) sur `main` / `develop`.) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 683.8899999999999864 Td
+(---) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 659.8899999999999864 Td
+(## 4. Dette technique connue) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 635.8899999999999864 Td
+(| Sujet | Statut |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 623.8899999999999864 Td
+(|-------|--------|) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 611.8899999999999864 Td
+(| Couverture tests partielle | Voir) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 599.8899999999999864 Td
+([04-strategie-tests.md]\(04-strategie-tests.md\) |) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 587.8899999999999864 Td
+(| OpenAPI partielle | Routes principales documentées, extension) Tj
+ET
+BT
+/F5 10 Tf
+11.5 TL
+0 g
+40. 575.8899999999999864 Td
+(progressive |) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 4.1.0)
+/CreationDate (D:20260617042444-05'00')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000006573 00000 n 
+0000008398 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000004921 00000 n 
+0000005058 00000 n 
+0000006636 00000 n 
+0000006761 00000 n 
+0000006891 00000 n 
+0000007024 00000 n 
+0000007162 00000 n 
+0000007286 00000 n 
+0000007415 00000 n 
+0000007547 00000 n 
+0000007683 00000 n 
+0000007811 00000 n 
+0000007938 00000 n 
+0000008067 00000 n 
+0000008200 00000 n 
+0000008302 00000 n 
+0000008648 00000 n 
+0000008734 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <2540FF33C1E2608B9F18C314C569B300> <2540FF33C1E2608B9F18C314C569B300> ]
+>>
+startxref
+8838
+%%EOF

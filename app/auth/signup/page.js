@@ -59,7 +59,9 @@ export default function SignupPage() {
       }, 2000)
     } catch (error) {
       console.error('Signup error:', error)
-      setError(error.message || t.auth.signupError)
+      const msg = (error.message || '').toLowerCase()
+      const isRateLimit = msg.includes('rate limit') || msg.includes('email rate limit')
+      setError(isRateLimit ? t.auth.signupRateLimitError : (error.message || t.auth.signupError))
     } finally {
       setLoading(false)
     }

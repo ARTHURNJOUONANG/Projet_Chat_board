@@ -123,6 +123,14 @@ export default function JobCampaigns({ onClose }) {
     max_applications_per_day: 15,
     kind: 'jobs'
   })
+  const [kandiContacts, setKandiContacts] = useState([])
+  const [kandiSaving, setKandiSaving] = useState(false)
+  const [kandiForm, setKandiForm] = useState({
+    email: '',
+    full_name: '',
+    role: '',
+    company_name: ''
+  })
 
   const campaignsSectionRef = useRef(null)
   const offersToConsultRef = useRef(null)
@@ -152,13 +160,15 @@ export default function JobCampaigns({ onClose }) {
   async function load() {
     setLoading(true)
     try {
-      const [profileRes, campaignsRes] = await Promise.all([
+      const [profileRes, campaignsRes, kandiRes] = await Promise.all([
         api.getCampaignProfile().catch(() => ({ profile: null })),
-        api.getCampaigns().catch(() => ({ campaigns: [] }))
+        api.getCampaigns().catch(() => ({ campaigns: [] })),
+        api.getKandiContacts().catch(() => ({ contacts: [] }))
       ])
       const p = profileRes.profile || null
       setProfile(p)
       setCampaigns(campaignsRes.campaigns || [])
+      setKandiContacts(kandiRes.contacts || [])
       if (p) {
         const titlesRaw = p.preferred_job_titles
         const titlesStr = Array.isArray(titlesRaw) ? (titlesRaw || []).join(', ') : (typeof titlesRaw === 'string' ? titlesRaw : '')
@@ -422,6 +432,51 @@ export default function JobCampaigns({ onClose }) {
     }
   }
 
+  async function addKandiContact(e) {
+    e.preventDefault()
+    const email = kandiForm.email.trim()
+    if (!email.includes('@')) {
+      toast.error('Indique un email valide pour le contact.')
+      return
+    }
+    setKandiSaving(true)
+    try {
+      const res = await api.addKandiContact({
+        email,
+        full_name: kandiForm.full_name,
+        role: kandiForm.role,
+        company_name: kandiForm.company_name,
+        source: 'manual'
+      })
+      if (res.contact) {
+        setKandiContacts((prev) => [res.contact, ...prev])
+        setKandiForm({ email: '', full_name: '', role: '', company_name: '' })
+        toast.success('Contact ajouté.')
+      }
+    } catch (err) {
+      toast.error(err?.message || 'Impossible d’ajouter le contact.')
+    } finally {
+      setKandiSaving(false)
+    }
+  }
+
+  async function removeKandiContact(id) {
+    const ok = await confirm({
+      title: 'Supprimer ce contact ?',
+      message: 'Il ne sera plus ciblé par les campagnes Kandi.',
+      confirmLabel: 'Supprimer',
+      danger: true
+    })
+    if (!ok) return
+    try {
+      await api.deleteKandiContact(id)
+      setKandiContacts((prev) => prev.filter((c) => c.id !== id))
+      toast.success('Contact supprimé.')
+    } catch (err) {
+      toast.error(err?.message || 'Suppression impossible.')
+    }
+  }
+
   async function startCampaign(e) {
     e.preventDefault()
     const emailCampagne = (form.campaign_email || form.contact_email || '').trim()
@@ -433,8 +488,12 @@ export default function JobCampaigns({ onClose }) {
       alert(t.campaigns.emailHint)
       return
     }
+    if (formCampaign.kind === 'kandi' && kandiContacts.length === 0) {
+      toast.error('Ajoute au moins un contact dans la section Kandi avant de lancer cette campagne.')
+      return
+    }
     const jobTitles = (form.preferred_job_titles || '').trim().split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
-    if (jobTitles.length === 0) {
+    if (formCampaign.kind !== 'kandi' && jobTitles.length === 0) {
       toast.error(t.campaigns.missingJobTitle)
       return
     }
@@ -715,6 +774,81 @@ export default function JobCampaigns({ onClose }) {
             </button>
           </div>
         </form>
+
+        {/* Contacts Kandi */}
+        <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={cardClass + ' mt-8'}>
+          <h2 className="text-base font-semibold text-white mb-1">Contacts Kandi</h2>
+          <p className="text-sm text-zinc-400 mb-4">
+            Ajoute les personnes à qui envoyer une candidature spontanée (recruteurs, managers, RH). Obligatoire pour une campagne de type Kandi.
+          </p>
+          <form onSubmit={addKandiContact} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <input
+              type="email"
+              className={inputClass}
+              placeholder="Email *"
+              value={kandiForm.email}
+              onChange={(e) => setKandiForm((p) => ({ ...p, email: e.target.value }))}
+              required
+            />
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Nom complet"
+              value={kandiForm.full_name}
+              onChange={(e) => setKandiForm((p) => ({ ...p, full_name: e.target.value }))}
+            />
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Poste / rôle"
+              value={kandiForm.role}
+              onChange={(e) => setKandiForm((p) => ({ ...p, role: e.target.value }))}
+            />
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Entreprise"
+              value={kandiForm.company_name}
+              onChange={(e) => setKandiForm((p) => ({ ...p, company_name: e.target.value }))}
+            />
+            <button
+              type="submit"
+              disabled={kandiSaving}
+              className="sm:col-span-2 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50"
+            >
+              {kandiSaving ? 'Ajout…' : '+ Ajouter le contact'}
+            </button>
+          </form>
+          {kandiContacts.length === 0 ? (
+            <p className="text-sm text-zinc-500">Aucun contact pour l’instant.</p>
+          ) : (
+            <ul className="space-y-2 max-h-48 overflow-y-auto">
+              {kandiContacts.map((c) => (
+                <li
+                  key={c.id}
+                  className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm text-white font-medium truncate">
+                      {c.full_name || c.email}
+                    </p>
+                    <p className="text-xs text-zinc-400 truncate">
+                      {[c.role, c.company_name].filter(Boolean).join(' · ') || c.email}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeKandiContact(c.id)}
+                    className="text-xs px-2 py-1 rounded-lg text-red-300 hover:bg-red-500/10 shrink-0"
+                  >
+                    Supprimer
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className={hintClass + ' mt-3'}>{kandiContacts.length} contact(s) enregistré(s).</p>
+        </motion.section>
 
         {/* Lancer la campagne */}
         <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={cardClass + ' mt-8'}>

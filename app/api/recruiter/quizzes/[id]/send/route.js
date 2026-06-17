@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
+/** Expéditeur Resend utilisable sans domaine vérifié (tests / dev). */
+const DEFAULT_RESEND_FROM = 'CareerAI <onboarding@resend.dev>'
+
 /** Renvoie une chaîne pour l'email (évite [object Object] si titre stocké en JSON). */
 function safeEmailStr(val) {
   if (val == null) return ''
@@ -161,18 +164,16 @@ async function sendQuizEmail({ to, candidateName, quizTitle, jobTitle, quizLink,
       throw new Error('RESEND_API_KEY n\'est pas configuré dans les variables d\'environnement. Veuillez configurer Resend pour envoyer des emails.')
     }
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM
-    if (!fromEmail) {
-      throw new Error('Expéditeur manquant. Définissez RESEND_FROM_EMAIL ou EMAIL_FROM dans .env.local (ex: CareerAI <noreply@votredomaine.com> ou onboarding@resend.dev).')
-    }
+    const configuredFrom =
+      process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || DEFAULT_RESEND_FROM
 
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const sendOne = async (recipient, noteInBody = '') => {
+    const sendOne = async (recipient, noteInBody = '', fromAddr = configuredFrom) => {
       const html = generateEmailHTML({ candidateName, quizTitle, jobTitle, quizLink, recruiterName, devNote: noteInBody })
       const { data, error } = await resend.emails.send({
-        from: fromEmail,
+        from: fromAddr,
         to: [recipient],
         subject: noteInBody ? `[Test] Quiz technique - ${jobTitle}` : `Quiz technique - ${jobTitle}`,
         html
@@ -184,23 +185,48 @@ async function sendQuizEmail({ to, candidateName, quizTitle, jobTitle, quizLink,
     let sentToRecruiterFallback = false
 
     if (result.error) {
-      const msg = result.error.message || JSON.stringify(result.error)
-      const isTestModeError = msg.includes('only send testing emails to your own email') || msg.includes('verify a domain')
-      if (isTestModeError && recruiterEmail && to.toLowerCase() !== recruiterEmail.toLowerCase()) {
+      let msg = result.error.message || JSON.stringify(result.error)
+      const domainNotVerified =
+        msg.includes('domain is not verified') ||
+        msg.includes('verify your domain') ||
+        msg.includes('not verified')
+
+      // Domaine configuré mais non vérifié sur Resend → réessai avec l’expéditeur de test officiel
+      if (domainNotVerified && configuredFrom !== DEFAULT_RESEND_FROM) {
+        console.warn(
+          '⚠️ RESEND_FROM_EMAIL / EMAIL_FROM utilise un domaine non vérifié. Nouvel essai avec',
+          DEFAULT_RESEND_FROM
+        )
+        result = await sendOne(to, '', DEFAULT_RESEND_FROM)
+        if (!result.error) {
+          msg = ''
+        } else {
+          msg = result.error.message || JSON.stringify(result.error)
+        }
+      }
+
+      const isTestModeError =
+        msg.includes('only send testing emails to your own email') ||
+        msg.includes('verify a domain') ||
+        msg.includes('domain is not verified') ||
+        msg.includes('not verified')
+
+      if (result.error && isTestModeError && recruiterEmail && to.toLowerCase() !== recruiterEmail.toLowerCase()) {
         console.warn('⚠️ Resend mode test : envoi au recruteur à la place du candidat:', recruiterEmail)
         result = await sendOne(
           recruiterEmail,
-          `<p style="background:#fff3cd;color:#856404;padding:10px;border-radius:6px;margin-bottom:16px;"><strong>Mode test Resend :</strong> cet email était destiné à <strong>${to}</strong>. Le lien ci-dessous est valide pour le candidat.</p>`
+          `<p style="background:#fff3cd;color:#856404;padding:10px;border-radius:6px;margin-bottom:16px;"><strong>Mode test Resend :</strong> cet email était destiné à <strong>${to}</strong>. Le lien ci-dessous est valide pour le candidat.</p>`,
+          DEFAULT_RESEND_FROM
         )
         if (result.error) throw result.error
         sentToRecruiterFallback = true
-      } else if (isTestModeError) {
+      } else if (result.error && isTestModeError) {
         throw new Error(
           'En mode test, Resend n\'autorise l\'envoi qu\'à votre propre adresse. ' +
           'Pour envoyer aux candidats et recruteurs : vérifiez un domaine sur https://resend.com/domains, ' +
           'puis définissez RESEND_FROM_EMAIL ou EMAIL_FROM avec une adresse de ce domaine (ex: noreply@votredomaine.com).'
         )
-      } else {
+      } else if (result.error) {
         throw new Error(`Erreur Resend: ${msg}`)
       }
     }

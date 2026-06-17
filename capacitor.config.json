@@ -1,0 +1,9 @@
+{
+  "appId": "live.careerai.app",
+  "appName": "CareerAI",
+  "webDir": "out",
+  "server": {
+    "url": "https://www.careerai.live",
+    "androidScheme": "https"
+  }
+}

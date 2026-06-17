@@ -6,9 +6,17 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:mobile-static": "cross-env CAPACITOR_STATIC_EXPORT=true next build",
+    "build:mobile-webdir": "node scripts/prepare-mobile-webdir.js",
+    "cap:sync": "npx cap sync android",
+    "cap:open:android": "npx cap open android",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "node -e \"var p=require('path'),c=require('child_process'); process.env.PUPPETEER_CACHE_DIR=p.join(process.cwd(),'.puppeteer-cache'); c.execSync('npx puppeteer browsers install chrome',{stdio:'inherit',env:process.env})\""
+    "postinstall": "node -e \"var p=require('path'),c=require('child_process'); process.env.PUPPETEER_CACHE_DIR=p.join(process.cwd(),'.puppeteer-cache'); c.execSync('npx puppeteer browsers install chrome',{stdio:'inherit',env:process.env})\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:smoke": "node scripts/test-saas-api.js"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.9.0",
@@ -19,6 +27,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
     "mammoth": "^1.6.0",
+    "marked": "^18.0.5",
     "multer": "^1.4.5-lts.1",
     "next": "^14.0.0",
     "pdf-parse": "^1.1.1",
@@ -29,9 +38,15 @@
     "resend": "^6.9.2"
   },
   "devDependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.9",
     "autoprefixer": "^10.4.0",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.0",
-    "tailwindcss": "^3.4.0"
+    "tailwindcss": "^3.4.0",
+    "vitest": "^4.1.9"
   },
   "keywords": [
     "cv",

@@ -1,0 +1,108 @@
+@page {
+  size: A4;
+  margin: 20mm 16mm 20mm 16mm;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #1f2937;
+  font-size: 11pt;
+  line-height: 1.55;
+}
+
+h1, h2, h3, h4 {
+  color: #0f172a;
+  margin-top: 1.1em;
+  margin-bottom: 0.45em;
+}
+
+h1 {
+  font-size: 22pt;
+  border-bottom: 2px solid #2563eb;
+  padding-bottom: 8px;
+}
+
+h2 {
+  font-size: 16pt;
+  border-left: 4px solid #3b82f6;
+  padding-left: 10px;
+}
+
+h3 {
+  font-size: 13pt;
+}
+
+p, li {
+  orphans: 3;
+  widows: 3;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0 14px 0;
+  font-size: 10pt;
+}
+
+th, td {
+  border: 1px solid #d1d5db;
+  padding: 7px 8px;
+  vertical-align: top;
+}
+
+th {
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+code {
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 9.5pt;
+  background: #f3f4f6;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+pre {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+blockquote {
+  border-left: 4px solid #93c5fd;
+  margin: 10px 0;
+  padding: 4px 12px;
+  color: #334155;
+  background: #f8fafc;
+}
+
+a {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 16px 0;
+}
+
+.page-break {
+  page-break-before: always;
+}
+

@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: CareerAI API
+  description: |
+    API REST de CareerAI (Next.js App Router).
+    Authentification : session Supabase via cookies (navigateur) ou cookie de session après login.
+    Base URL production : https://www.careerai.live
+  version: 1.0.0
+  contact:
+    name: CareerAI
+    url: https://www.careerai.live
+
+servers:
+  - url: https://www.careerai.live
+    description: Production
+  - url: http://localhost:3000
+    description: Développement local
+
+tags:
+  - name: campaigns
+    description: Campagnes de candidatures automatiques
+  - name: recruiter
+    description: Espace recruteur (postes, candidats, quiz)
+  - name: candidate-quiz
+    description: Quiz candidat (accès par token public)
+  - name: chat
+    description: Assistant IA
+
+paths:
+  /api/campaigns:
+    get:
+      tags: [campaigns]
+      summary: Liste des campagnes de l'utilisateur
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Liste des campagnes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaigns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JobCampaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [campaigns]
+      summary: Créer une campagne
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration_days:
+                  type: integer
+                  minimum: 1
+                  maximum: 90
+                  example: 7
+                max_applications_per_day:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  example: 15
+                kind:
+                  type: string
+                  enum: [jobs, kandi]
+                  default: jobs
+      responses:
+        '200':
+          description: Campagne créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaign:
+                    $ref: '#/components/schemas/JobCampaign'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/campaigns/run-now:
+    post:
+      tags: [campaigns]
+      summary: Exécuter immédiatement les campagnes actives
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Résultat d'exécution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+                  processed:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                  offersToConsult:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/campaigns/profile:
+    get:
+      tags: [campaigns]
+      summary: Profil candidat pour campagnes
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Profil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profile:
+                    $ref: '#/components/schemas/CandidateProfile'
+    post:
+      tags: [campaigns]
+      summary: Enregistrer le profil candidat
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateProfileInput'
+      responses:
+        '200':
+          description: Profil enregistré
+
+  /api/recruiter/candidates:
+    get:
+      tags: [recruiter]
+      summary: Liste des candidats du recruteur
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: jobPostingId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste candidats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Candidate'
+    post:
+      tags: [recruiter]
+      summary: Ajouter un candidat et analyser son CV
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [email, cv]
+              properties:
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                jobPostingId:
+                  type: string
+                  format: uuid
+                cv:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Candidat créé
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Email déjà utilisé pour ce recruteur
+
+  /api/recruiter/quizzes/{id}/send:
+    post:
+      tags: [recruiter]
+      summary: Envoyer un quiz par email à un candidat
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [candidateId, candidateEmail]
+              properties:
+                candidateId:
+                  type: string
+                  format: uuid
+                candidateEmail:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Quiz envoyé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  quizLink:
+                    type: string
+                  sentToRecruiterFallback:
+                    type: boolean
+        '400':
+          description: Quiz inactif ou données manquantes
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/candidate/quiz/{token}:
+    get:
+      tags: [candidate-quiz]
+      summary: Charger un quiz par token (public)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Données du quiz
+        '404':
+          description: Token invalide ou expiré
+
+  /api/candidate/quiz/{token}/submit:
+    post:
+      tags: [candidate-quiz]
+      summary: Soumettre les réponses du quiz
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Soumission enregistrée
+
+  /api/chat:
+    post:
+      tags: [chat]
+      summary: Envoyer un message au chat IA
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                conversationId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Réponse IA
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-access-token
+      description: Session Supabase (cookies après login). Voir documentation Supabase Auth.
+
+  responses:
+    Unauthorized:
+      description: Non autorisé — session absente ou expirée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    JobCampaign:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [jobs, kandi]
+        status:
+          type: string
+          enum: [active, paused, completed]
+        duration_days:
+          type: integer
+        ends_at:
+          type: string
+          format: date-time
+        max_applications_per_day:
+          type: integer
+        total_sent:
+          type: integer
+
+    CandidateProfile:
+      type: object
+      properties:
+        user_id:
+          type: string
+        preferred_job_titles:
+          type: array
+          items:
+            type: string
+        allow_auto_apply:
+          type: boolean
+        cv_document_id:
+          type: string
+          format: uuid
+
+    CandidateProfileInput:
+      type: object
+      properties:
+        preferred_job_titles:
+          type: array
+          items:
+            type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        contact_email:
+          type: string
+        allow_auto_apply:
+          type: boolean
+        default_cover_letter:
+          type: string
+
+    Candidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        status:
+          type: string

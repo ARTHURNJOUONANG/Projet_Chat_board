@@ -103,6 +103,8 @@ export const translations = {
       updatePasswordUpdating: 'Mise à jour...',
       signupSuccess: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.',
       signupError: "Erreur lors de l'inscription",
+      signupRateLimitError:
+        "Limite d'envoi d'emails Supabase atteinte (trop d'inscriptions ou de mails récents). Attendez environ 1 heure, ou créez le compte depuis le dashboard Supabase. Pour la prod, configurez un SMTP personnalisé (Resend) dans Supabase → Authentication → SMTP.",
       resetSentMessage: "Un email a été envoyé à {email}. Cliquez sur le lien pour définir un nouveau mot de passe. Pensez à vérifier les spams.",
       sendResetButton: 'Envoyer le lien de réinitialisation',
       sendingReset: 'Envoi en cours...',
@@ -394,6 +396,8 @@ export const translations = {
       updatePasswordUpdating: 'Updating...',
       signupSuccess: 'Account created successfully! You can now sign in.',
       signupError: 'Error during sign up',
+      signupRateLimitError:
+        'Supabase email rate limit reached. Wait about an hour, create the user in the Supabase dashboard, or configure custom SMTP (e.g. Resend) under Authentication → SMTP.',
       resetSentMessage: 'An email has been sent to {email}. Click the link to set a new password. Check your spam folder.',
       sendResetButton: 'Send reset link',
       sendingReset: 'Sending...',

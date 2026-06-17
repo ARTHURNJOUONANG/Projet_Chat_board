@@ -524,18 +524,25 @@ function JobsTab({ jobs, onCreateJob, onSelectJob, loading }) {
 
 // Composant pour l'onglet Candidats
 function CandidatesTab({ candidates, jobs, onAddCandidate, loading }) {
+  const toast = useToast()
   const [showForm, setShowForm] = useState(false)
-  const [file, setFile] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
-    if (file) {
-      formData.append('cv', file)
-      await onAddCandidate(formData)
-      setShowForm(false)
-      setFile(null)
+    const cv = formData.get('cv')
+    const hasFile =
+      cv &&
+      typeof cv !== 'string' &&
+      'size' in cv &&
+      cv.size > 0
+    if (!hasFile) {
+      toast.error('Veuillez sélectionner un fichier CV (PDF ou DOCX).')
+      return
     }
+    await onAddCandidate(formData)
+    setShowForm(false)
+    e.target.reset()
   }
 
   return (
@@ -584,8 +591,8 @@ function CandidatesTab({ candidates, jobs, onAddCandidate, loading }) {
           </select>
           <input
             type="file"
-            accept=".pdf,.docx"
-            onChange={(e) => setFile(e.target.files[0])}
+            name="cv"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
             required
           />

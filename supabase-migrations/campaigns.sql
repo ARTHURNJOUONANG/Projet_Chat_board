@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS candidate_profiles (
 CREATE TABLE IF NOT EXISTS job_campaigns (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  kind TEXT DEFAULT 'jobs' CHECK (kind IN ('jobs', 'kandi')),
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'paused', 'completed')),
   duration_days INTEGER NOT NULL DEFAULT 7,
   started_at TIMESTAMPTZ DEFAULT NOW(),
